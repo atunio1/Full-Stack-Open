@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import personService from './services/persons'
 
 
 const App = () => {
@@ -12,29 +12,65 @@ const App = () => {
   const [newSearch, setNewSearch] = useState('')
 
   useEffect(() => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response =>{
-      setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
     })
   }, [])
   
   const addPerson = (event) => {
     event.preventDefault()
-
     const duplicate = persons.find(({ name }) => name.toLowerCase() === newName.toLowerCase()) 
-
+    
     if (duplicate) {
-      alert(`${newName} is already added to phonebook`)
+      if (duplicate.number === newNumber) {
+        alert(`${newName} is already added to phonebook`)
+      }
+      else {
+        if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+          const updatedPerson = {
+            ... duplicate,
+            number: newNumber,
+          }
+
+          personService
+            .update(updatedPerson.id, updatedPerson)
+            .then(returnedPerson =>
+              {
+                setPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson))
+              })
+            }
+      }
     } else {
       const personObject = {
         name: newName,
-        id: persons.length + 1,
         number: newNumber,
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
+      personService
+        .create(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        })
+    }
+  }
+
+  const deletePersonWith = id => {
+    const person = persons.find((person) => person.id === id)
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService
+        .remove(person.id)
+        .then(
+          setPersons(persons.filter(person => person.id !== id))
+        )
+        .catch(error => {
+          alert(
+            `The person ${person.name} was already deleted.`
+          )
+          setPersons(persons.filter(person => person.id !== id))
+        }) 
     }
   }
 
@@ -62,7 +98,7 @@ const App = () => {
 
       {/* Display Phone Book */}
       <h3>Numbers</h3>
-        <Persons persons={persons} newSearch={newSearch} />
+        <Persons persons={persons} newSearch={newSearch} deletePerson={deletePersonWith} />
     </div>
   )
 }
