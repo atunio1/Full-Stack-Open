@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import personService from './services/persons'
 
 
@@ -10,6 +11,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newSearch, setNewSearch] = useState('')
+  const [newNotification, setNotification] = useState(null)
+  const [newMessageType, setMessageType] = useState('success')
 
   useEffect(() => {
     personService
@@ -39,6 +42,9 @@ const App = () => {
             .then(returnedPerson =>
               {
                 setPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson))
+                setNotification(`Updated ${newName}`)
+                setMessageType('success')
+                timeOut()
               })
             }
       }
@@ -53,6 +59,9 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          setNotification(`Created ${newName}`)
+          setMessageType('success')
+          timeOut()
         })
     }
   }
@@ -62,13 +71,15 @@ const App = () => {
     if (window.confirm(`Delete ${person.name}?`)) {
       personService
         .remove(person.id)
-        .then(
+        .then(() => {
           setPersons(persons.filter(person => person.id !== id))
-        )
+          setNotification(`Deleted ${person.name}`)
+          setMessageType('success')
+          timeOut()
+        })
         .catch(error => {
-          alert(
-            `The person ${person.name} was already deleted.`
-          )
+          setNotification(`Information of ${person.name} has already been removed from server.`)
+          setMessageType('error')
           setPersons(persons.filter(person => person.id !== id))
         }) 
     }
@@ -86,9 +97,16 @@ const App = () => {
     setNewSearch(event.target.value)
   }
 
+  const timeOut = () => {
+    setTimeout(() => {
+      setNotification(null)
+    }, 3000)
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={newNotification} messageType={newMessageType} />
       {/* Filter Functionality */}
         <Filter newSearch={newSearch} handleSearch={handleSearch} />
 
