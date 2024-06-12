@@ -12,4 +12,11 @@ const getAll = () => {
     return request.then(response => response.data.map(country => country.name.common))
 }
 
-export default { getOne, getAll }
+const getWeather = (latlng) => {
+    const api_key = import.meta.env.VITE_SOME_KEY
+
+    const request = axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latlng[0]}&lon=${latlng[1]}&appid=${api_key}`)
+    return request.then(response => response.data)
+}
+
+export default { getOne, getAll, getWeather }

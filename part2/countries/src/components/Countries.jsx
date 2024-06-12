@@ -1,14 +1,19 @@
-const Country = ({ name, capital, area, flag, languages }) => {
+const Country = (countryObj) => {
+
     return (
         <div>
-        <h3>{name}</h3>
-        capital {capital} <br />
-        area {area} 
+        <h3>{countryObj.name}</h3>
+        capital {countryObj.capital} <br />
+        area {countryObj.area} 
         <h4>languages:</h4>
         <ul>
-            {Object.values(languages).map((language) => <li key={language}>{language}</li>)}
+            {Object.values(countryObj.languages).map((language) => <li key={language}>{language}</li>)}
         </ul>
-        <img src={flag} alt={name} />
+        <img src={countryObj.flag} alt={countryObj.name} />
+        <h2>Weather in {countryObj.name}</h2>
+        temperature {countryObj.temp} <br />
+        <img src={`https://openweathermap.org/img/wn/${countryObj.icon}@2x.png`} /> <br />
+        wind {countryObj.wind}
         </div>
     )
 }
@@ -31,13 +36,7 @@ const Countries = ({ resultsToShow, countryObj, handleShow }) => {
             {resultsToShow.length > 10 ? 
             'Too many results'
             : resultsToShow.length === 1 && countryObj ? 
-            <Country
-                name={countryObj.name}
-                capital={countryObj.capital}
-                area={countryObj.area}
-                flag={countryObj.flag}
-                languages={countryObj.languages}
-            />
+            <Country {...countryObj} />
             : 
             <MultiCountries
                 resultsToShow={resultsToShow}

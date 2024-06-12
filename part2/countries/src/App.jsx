@@ -8,6 +8,7 @@ const App = () => {
   const [countries, setCountries] = useState([])
   const [newSearch, setNewSearch] = useState('')
   const [countryObj, setCountryObj] = useState(null) // single country object
+  const [countryObjUpdated, setUpdatedCountryObj] = useState(null) // single country object with weather data
   const [resultsToShow, setResultsToShow] = useState([])
 
   const handleSearch = (event) => {
@@ -41,22 +42,37 @@ const App = () => {
     setCountryObj(null)
     if (resultsToShow.length === 1) {
       countryService.getOne(resultsToShow[0]).then(countryData => {
-        const countryObj = {
+        const newCountryObj = {
           name: countryData.name.common,
           capital: countryData.capital,
           area: countryData.area,
           flag: countryData.flags.png,
           languages: countryData.languages,
+          latlng: countryData.latlng,
         }
-        setCountryObj(countryObj)
+        setCountryObj(newCountryObj)
       })
     }
   }, [resultsToShow.length])
 
+  /* Getting country weather data */
+  useEffect(() => {
+    if (countryObj) {
+      countryService.getWeather(countryObj.latlng).then(weatherData => {
+        const updatedCountryObj = {...countryObj,
+          temp: weatherData.main.temp,
+          icon: weatherData.weather[0].icon,
+          wind: weatherData.wind.speed,
+        }
+        setUpdatedCountryObj(updatedCountryObj)
+      })
+    }
+  }, [countryObj])
+
   return (
     <div>
       <Search newSearch={newSearch} handleSearch={handleSearch} />
-      <Countries resultsToShow={resultsToShow} countryObj={countryObj} handleShow={handleShow} /> 
+      <Countries resultsToShow={resultsToShow} countryObj={countryObjUpdated} handleShow={handleShow} /> 
     </div>
     
   )
