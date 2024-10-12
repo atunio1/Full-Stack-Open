@@ -4,8 +4,8 @@ import PropTypes from 'prop-types'
 const Togglable = forwardRef((props, refs) => {
   const [visible, setVisible] = useState(false)
 
-  const infoNotVisible = { display: visible ? 'none' : '' }
-  const infoVisible = { display: visible ? '' : 'none' }
+  const hideWhenVisible = { display: visible ? 'none' : '' }
+  const showWhenVisible = { display: visible ? '' : 'none' }
 
   const toggleVisibility = () => {
     setVisible(!visible)
@@ -19,10 +19,10 @@ const Togglable = forwardRef((props, refs) => {
 
   return (
     <div>
-      <div style={infoNotVisible }>
+      <div style={hideWhenVisible }>
         <button onClick={toggleVisibility}>{props.buttonLabel}</button>
       </div>
-      <div style={infoVisible}>
+      <div style={showWhenVisible} className="togglableContent">
         {props.children}
         <button onClick={toggleVisibility}>{props.cancelButtonLabel}</button>
       </div>

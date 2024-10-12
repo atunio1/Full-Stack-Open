@@ -17,7 +17,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs.sort((a,b) => b.likes - a.likes) )
+      setBlogs(blogs)
     )
   }, [])
 
@@ -78,7 +78,7 @@ const App = () => {
   const handleLikes = async (blogObject) => {
     try {
       const updatedBlog = await blogService.update(blogObject.id, blogObject)
-      setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
+      setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog).sort((a,b) => b.likes - a.likes))
     } catch (exception) {
       setNotification(`Blog could not be liked: ${exception.stack}`)
       setMessageType('error')
@@ -112,6 +112,7 @@ const App = () => {
     return (
       <div>
         <Notification message={newNotification} messageType={newMessageType} />
+        <h1>Blog Application</h1>
         <Togglable buttonLabel='login' cancelButtonLabel='cancel'>
           <LoginForm handleLogin={handleLogin}/>
         </Togglable>
@@ -122,7 +123,8 @@ const App = () => {
   return (
     <div>
       <Notification message={newNotification} messageType={newMessageType} />
-      <h2>blogs</h2>
+      <h1>Blog Application</h1>
+      <h2>Blogs</h2>
       <p>{user.name} logged in</p>
       <button onClick={handleLogOut}>Logout</button>
       <Togglable buttonLabel='create blog' cancelButtonLabel='cancel' ref={blogFormRef}>
